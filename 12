@@ -1,0 +1,58 @@
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CalendarIcon, HeartPulseIcon, StethoscopeIcon } from "lucide-react";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+
+const HealthApp = () => {
+  const [healthData, setHealthData] = useState({ heartRate: "", bloodPressure: "", stressLevel: "" });
+  const [appointment, setAppointment] = useState("");
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleInputChange = (e) => {
+    setHealthData({ ...healthData, [e.target.name]: e.target.value });
+  };
+
+  return (
+    <div className="p-6 max-w-lg mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Health & Wellness Tracker</h1>
+      
+      {session ? (
+        <>
+          <p>Welcome, {session.user.name}</p>
+          <Button onClick={() => signOut()}>Sign Out</Button>
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <Label htmlFor="heartRate">Heart Rate (bpm)</Label>
+              <Input id="heartRate" name="heartRate" type="number" placeholder="e.g., 72" value={healthData.heartRate} onChange={handleInputChange} />
+              <Label htmlFor="bloodPressure">Blood Pressure (mmHg)</Label>
+              <Input id="bloodPressure" name="bloodPressure" type="text" placeholder="e.g., 120/80" value={healthData.bloodPressure} onChange={handleInputChange} />
+              <Label htmlFor="stressLevel">Stress Level (1-10)</Label>
+              <Input id="stressLevel" name="stressLevel" type="number" placeholder="e.g., 5" value={healthData.stressLevel} onChange={handleInputChange} />
+            </CardContent>
+          </Card>
+          
+          <Card className="mb-4">
+            <CardContent className="p-4">
+              <h2 className="text-lg font-semibold mb-2">Book a Health Consultation</h2>
+              <div className="flex gap-2">
+                <Input type="datetime-local" value={appointment} onChange={(e) => setAppointment(e.target.value)} />
+                <Button><CalendarIcon className="w-5 h-5" /></Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Button className="w-full">Submit Data</Button>
+        </>
+      ) : (
+        <Button onClick={() => signIn()}>Sign In</Button>
+      )}
+    </div>
+  );
+};
+
+export default HealthApp;
